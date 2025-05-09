@@ -1,18 +1,17 @@
-// src/components/WalletConnector.tsx
 import React, { useState } from "react";
-import Web3 from "web3";
+import { ethers } from "ethers";
+import { useNavigate } from "react-router-dom";
 
 declare global {
   interface Window {
     ethereum?: any;
-    web3?: Web3;
   }
 }
 
 const WalletConnector: React.FC = () => {
   const [account, setAccount] = useState<string | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
-
+  const navigate = useNavigate();
   const connectWallet = async () => {
     if (!window.ethereum) {
       alert("Установите MetaMask!");
@@ -20,22 +19,26 @@ const WalletConnector: React.FC = () => {
     }
 
     try {
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      const web3 = new Web3(window.ethereum);
-      window.web3 = web3;
-
-      setAccount(accounts[0]);
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const address = await signer.getAddress();
+      setAccount(address);
+      navigate("/dashboard");
     } catch (err) {
       console.error("Ошибка подключения:", err);
     }
   };
 
   const signMessage = async () => {
-    if (!window.web3 || !account) return;
+    if (!window.ethereum || !account) return;
+
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
 
     const message = "Авторизация через MetaMask";
+
     try {
-      const signature = await window.web3.eth.personal.sign(message, account, "");
+      const signature = await signer.signMessage(message);
       setSignature(signature);
     } catch (err) {
       console.error("Ошибка подписи:", err);

@@ -1,17 +1,15 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import WalletConnector from "./components/WalletConnector";
-
-
+import Dashboard from "./components/Dashboard";
 
 function App() {
-
-
   return (
-    <div className="flex flex-col items-center space-y-6 p-10">
-      <div style={{ padding: "2rem" }}>
-      <h1>Login with MetaMask</h1>
-      <WalletConnector />
-    </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<WalletConnector />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
